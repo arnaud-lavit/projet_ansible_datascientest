@@ -1,0 +1,10 @@
+all:
+  children:
+    wordpress_servers:
+      hosts:
+        wordpress_server:
+          ansible_host: 172.31.35.64
+    mysql_servers:
+      hosts:
+        mysql_server:
+          ansible_host: 172.31.36.186

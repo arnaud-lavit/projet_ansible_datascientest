@@ -1,0 +1,52 @@
+---
+# tasks file for mysql
+- name: Installation de mysql-server
+  apt:
+    pkg: mysql-server
+    update_cache: yes
+    cache_valid_time: 86400
+    state: present
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Installation de mariadb-server
+  apt:
+    pkg: mariadb-server
+    update_cache: yes
+    cache_valid_time: 86400
+    state: present
+  when: ansible_distribution == 'Debian'
+
+- name: Démarrer MariaDB
+  service:
+    name: mysql
+    state: started
+    enabled: yes
+
+- name: Installation des dépendances
+  apt:
+    pkg: ["php-mysql", "python3-pymysql"]
+    update_cache: yes
+    cache_valid_time: 86400
+    state: present
+
+- name: Créer une base de données mysql
+  mysql_db:
+    name: "{{ wp_mysql_db }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Créer un utilisateur mysql
+  mysql_user:
+    name: "{{ wp_mysql_user }}"
+    host: "%"
+    password: "{{ wp_mysql_password }}"
+    priv: "*.*:ALL"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Autoriser la connexion distante à la base de données MySQL
+  lineinfile:
+    path: /etc/mysql/mysql.conf.d/mysqld.cnf
+    regexp: "^bind-address"
+    line: "bind-address = 0.0.0.0"
+    state: present
